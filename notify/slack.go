@@ -30,20 +30,22 @@ func Slack(url, title, message string) error {
 	msg := messageBody(title, message)
 	resp, err := http.Post(url, "application/json", strings.NewReader(msg))
 	if err != nil {
-		return fmt.Errorf("slack notification failed: %s", err)
+		return fmt.Errorf("slack POST failed: %s", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
 		b, _ := ioutil.ReadAll(resp.Body)
+		fmt.Println(msg)
 		return fmt.Errorf("slack notification failed: %s", b)
 	}
 
 	return nil
 }
 
-func messageBody(title, message string) string {
+func messageBody(title, msg string) string {
+	msg = strings.Replace(msg, "\"", "'", -1)
 	return fmt.Sprintf(`{
   "username": "%s",
   "text": "%s"
-}`, title, message)
+}`, title, msg)
 }
